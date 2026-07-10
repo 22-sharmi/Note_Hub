@@ -318,16 +318,28 @@ function toast(msg, type='info') {
 }
 
 function highlightCode(code) {
-  let h = escHtml(code);
-  // Comments
-  h = h.replace(/(\/\/.*$|#.*$)/gm, '<span class="hl-cm">$1</span>');
-  // Strings
-  h = h.replace(/(&quot;.*?&quot;|&#039;.*?&#039;|".*?"|'.*?')/g, '<span class="hl-str">$1</span>');
-  // Numbers
-  h = h.replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-num">$1</span>');
-  // Keywords
-  const kws = ['void','int','float','double','char','bool','String','const','if','else','for','while','do','return','include','define','class','def','import','from','print','True','False','None','self','async','await','try','except','finally','with','as','in','not','and','or','is','lambda','yield','pass','break','continue','raise','new','let','var','function','struct','unsigned','long','byte','HIGH','LOW','OUTPUT','INPUT','setup','loop','delay','digitalWrite','digitalRead','analogRead','analogWrite','pinMode','Serial','begin','println','print','WiFi','begin','status','WL_CONNECTED','localIP','type','len'];
+  let h = code;
+  const placeholders = [];
+  function hold(html) {
+    const id = `\x00${placeholders.length}\x00`;
+    placeholders.push(html);
+    return id;
+  }
+  // 1. Protect strings first (before any HTML escaping)
+  h = h.replace(/(["'])(?:(?!\1|\\).|\\.)*\1/g, m => hold('<span class="hl-str">' + escHtml(m) + '</span>'));
+  // 2. Protect // comments
+  h = h.replace(/(\/\/.*$)/gm, m => hold('<span class="hl-cm">' + escHtml(m) + '</span>'));
+  // 3. Protect # comments but NOT #include, #define, etc.
+  h = h.replace(/(#(?!\s*(?:include|define|pragma|ifdef|ifndef|endif|if|else|elif|undef))\S*)/gm, m => hold('<span class="hl-cm">' + escHtml(m) + '</span>'));
+  // 4. NOW escape HTML on whatever is left
+  h = escHtml(h);
+  // 5. Keywords (added #include and #define here so they highlight instead of being treated as comments)
+  const kws = ['void','int','float','double','char','bool','String','const','if','else','for','while','do','return','#include','#define','class','def','import','from','print','True','False','None','self','async','await','try','except','finally','with','as','in','not','and','or','is','lambda','yield','pass','break','continue','raise','new','let','var','function','struct','unsigned','long','byte','HIGH','LOW','OUTPUT','INPUT','setup','loop','delay','digitalWrite','digitalRead','analogRead','analogWrite','pinMode','Serial','begin','println','print','WiFi','status','WL_CONNECTED','localIP','type','len'];
   kws.forEach(k => { h = h.replace(new RegExp('\\b(' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b', 'g'), '<span class="hl-kw">$1</span>'); });
+  // 6. Numbers
+  h = h.replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-num">$1</span>');
+  // 7. Restore all protected strings/comments
+  placeholders.forEach((p, i) => { h = h.replace(`\x00${i}\x00`, p); });
   return h;
 }
 
