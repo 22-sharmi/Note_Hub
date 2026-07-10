@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SharmiNotes — Learn Arduino, ESP32, Python & STEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
+<style>
+:root {
+  --bg: #FAFAF9; --bg2: #F5F5F4; --fg: #1C1917; --fg2: #57534E;
+  --muted: #A8A29E; --accent: #D97706; --accent2: #F59E0B;
+  --card: #FFFFFF; --border: #E7E5E4; --glass: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.3); --success: #059669; --danger: #DC2626;
+}
+.dark {
+  --bg: #0C0A09; --bg2: #1C1917; --fg: #FAFAF9; --fg2: #A8A29E;
+  --muted: #78716C; --accent: #F59E0B; --accent2: #FBBF24;
+  --card: #1C1917; --border: #292524; --glass: rgba(28,25,23,0.78);
+  --glass-border: rgba(68,64,60,0.4); --success: #34D399; --danger: #F87171;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg); color: var(--fg);
+  transition: background 0.4s, color 0.4s;
+  margin: 0; overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+::selection { background: var(--accent); color: #fff; }
+.glass {
+  background: var(--glass); backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+.btn-primary {
+  background: var(--accent); color: #fff; border: none; padding: 12px 28px;
+  border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;
+  transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+  font-family: inherit;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(217,119,6,0.3); }
+.btn-secondary {
+  background: transparent; color: var(--fg); border: 1.5px solid var(--border);
+  padding: 11px 27px; border-radius: 12px; font-weight: 600; cursor: pointer;
+  font-size: 15px; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+  font-family: inherit;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 8px; }
+.btn-danger { background: var(--danger); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.25s; font-family: inherit; }
+.btn-danger:hover { filter: brightness(1.1); }
+.input-field {
+  width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--bg); color: var(--fg); font-size: 15px; font-family: inherit;
+  transition: border-color 0.25s, box-shadow 0.25s; outline: none;
+}
+.input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217,119,6,0.12); }
+.input-field::placeholder { color: var(--muted); }
+select.input-field { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A29E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1); overflow: hidden;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
+.dark .card:hover { box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+.badge {
+  display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px;
+  font-weight: 600; letter-spacing: 0.02em;
+}
+.badge-amber { background: #FEF3C7; color: #92400E; }
+.dark .badge-amber { background: #451A03; color: #FBBF24; }
+.badge-emerald { background: #D1FAE5; color: #065F46; }
+.dark .badge-emerald { background: #064E3B; color: #34D399; }
+.badge-red { background: #FEE2E2; color: #991B1B; }
+.dark .badge-red { background: #450A0A; color: #F87171; }
+.badge-stone { background: var(--bg2); color: var(--fg2); }
+
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes slideUp { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:translateY(0) } }
+@keyframes slideDown { from { opacity:0; transform:translateY(-12px) } to { opacity:1; transform:translateY(0) } }
+@keyframes scaleIn { from { opacity:0; transform:scale(0.95) } to { opacity:1; transform:scale(1) } }
+@keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }
+@keyframes pulse-glow { 0%,100% { box-shadow: 0 0 8px rgba(217,119,6,0.3) } 50% { box-shadow: 0 0 20px rgba(217,119,6,0.6) } }
+@keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+.anim-fade { animation: fadeIn 0.5s ease both; }
+.anim-slide { animation: slideUp 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+.anim-scale { animation: scaleIn 0.4s ease both; }
+.anim-slide-down { animation: slideDown 0.4s ease both; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg2) 25%, var(--border) 50%, var(--bg2) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+}
+
+/* Editor */
+.editor-area { min-height: 300px; padding: 20px; outline: none; font-size: 15px; line-height: 1.75; color: var(--fg); }
+.editor-area h1 { font-size: 28px; font-weight: 800; margin: 16px 0 8px; }
+.editor-area h2 { font-size: 22px; font-weight: 700; margin: 14px 0 6px; }
+.editor-area h3 { font-size: 18px; font-weight: 600; margin: 12px 0 4px; }
+.editor-area p { margin: 8px 0; }
+.editor-area ul { padding-left: 24px; list-style: disc; }
+.editor-area ol { padding-left: 24px; list-style: decimal; }
+.editor-area li { margin: 4px 0; }
+.editor-area a { color: var(--accent); text-decoration: underline; }
+.editor-area img { max-width: 100%; border-radius: 10px; margin: 12px 0; }
+.editor-area table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+.editor-area th, .editor-area td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.editor-area th { background: var(--bg2); font-weight: 600; }
+.editor-toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg2); border-radius: 12px 12px 0 0; }
+.editor-toolbar button {
+  width: 34px; height: 34px; border: none; background: transparent; color: var(--fg2);
+  border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.editor-toolbar button:hover { background: var(--border); color: var(--fg); }
+.editor-toolbar button.active { background: var(--accent); color: #fff; }
+.editor-toolbar .sep { width: 1px; background: var(--border); margin: 4px 6px; }
+
+/* Code Block */
+.code-block { position: relative; margin: 16px 0; border-radius: 12px; overflow: hidden; background: #1a1a2e; border: 1px solid #2d2d44; }
+.code-block-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #16162a; border-bottom: 1px solid #2d2d44; }
+.code-block-lang { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8888aa; }
+.code-block-copy { background: none; border: 1px solid #3d3d5c; color: #8888aa; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.code-block-copy:hover { border-color: var(--accent); color: var(--accent); }
+.code-block pre { margin: 0; padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.7; color: #e2e2f0; }
+.code-block .line-num { display: inline-block; width: 36px; text-align: right; margin-right: 16px; color: #4a4a6a; user-select: none; }
+.hl-kw { color: #c792ea; } .hl-str { color: #c3e88d; } .hl-cm { color: #546e7a; font-style: italic; }
+.hl-num { color: #f78c6c; } .hl-fn { color: #82aaff; } .hl-type { color: #ffcb6b; } .hl-op { color: #89ddff; }
+
+/* Toast */
+#toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500;
+  animation: slideDown 0.4s ease both; max-width: 360px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.toast-success { background: #065F46; color: #D1FAE5; }
+.toast-error { background: #991B1B; color: #FEE2E2; }
+.toast-info { background: #1E3A5F; color: #DBEAFE; }
+
+/* Presentation Mode */
+#pres-overlay {
+  position: fixed; inset: 0; z-index: 10000; background: #111; color: #f0f0f0;
+  display: none; flex-direction: column;
+}
+#pres-overlay.active { display: flex; }
+#pres-content { flex: 1; overflow-y: auto; padding: 60px 10%; }
+#pres-content h1 { font-size: 3rem; font-weight: 900; margin-bottom: 1rem; color: #FBBF24; }
+#pres-content h2 { font-size: 2.2rem; font-weight: 700; margin: 2rem 0 0.8rem; color: #F59E0B; }
+#pres-content h3 { font-size: 1.6rem; font-weight: 600; margin: 1.5rem 0 0.6rem; }
+#pres-content p { font-size: 1.4rem; line-height: 1.9; color: #d4d4d4; margin: 0.8rem 0; }
+#pres-content ul, #pres-content ol { font-size: 1.3rem; line-height: 2; padding-left: 2rem; color: #d4d4d4; }
+#pres-content img { max-width: 80%; border-radius: 12px; margin: 1.5rem auto; display: block; }
+#pres-content pre { font-size: 1.15rem; line-height: 1.8; }
+#pres-content table { font-size: 1.2rem; border-collapse: collapse; width: 100%; margin: 1.5rem 0; }
+#pres-content th, #pres-content td { border: 1px solid #333; padding: 12px 16px; }
+#pres-content th { background: #1a1a1a; color: #FBBF24; }
+#pres-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #0a0a0a; border-top: 1px solid #222; }
+
+/* Particles canvas */
+#particles-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Sidebar */
+.admin-sidebar { width: 260px; min-height: 100vh; background: var(--card); border-right: 1px solid var(--border); position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s; }
+.admin-sidebar .nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 20px; margin: 2px 12px;
+  border-radius: 10px; color: var(--fg2); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; text-decoration: none;
+}
+.admin-sidebar .nav-item:hover { background: var(--bg2); color: var(--fg); }
+.admin-sidebar .nav-item.active { background: rgba(217,119,6,0.1); color: var(--accent); font-weight: 600; }
+.admin-main { margin-left: 260px; min-height: 100vh; padding: 32px; }
+
+@media (max-width: 1024px) {
+  .admin-sidebar { transform: translateX(-100%); }
+  .admin-sidebar.open { transform: translateX(0); box-shadow: 8px 0 30px rgba(0,0,0,0.2); }
+  .admin-main { margin-left: 0; padding: 20px; padding-bottom: 80px; }
+}
+@media (max-width: 640px) {
+  #pres-content { padding: 30px 5%; }
+  #pres-content h1 { font-size: 2rem; }
+  #pres-content h2 { font-size: 1.5rem; }
+  #pres-content p { font-size: 1.1rem; }
+}
+
+/* Modal */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+.modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 480px; width: 90%; animation: scaleIn 0.3s ease; }
+
+/* Note content rendered */
+.note-content h1 { font-size: 26px; font-weight: 800; margin: 20px 0 10px; }
+.note-content h2 { font-size: 21px; font-weight: 700; margin: 18px 0 8px; }
+.note-content h3 { font-size: 17px; font-weight: 600; margin: 14px 0 6px; }
+.note-content p { margin: 10px 0; line-height: 1.8; color: var(--fg2); }
+.note-content ul { padding-left: 24px; list-style: disc; color: var(--fg2); }
+.note-content ol { padding-left: 24px; list-style: decimal; color: var(--fg2); }
+.note-content li { margin: 4px 0; line-height: 1.7; }
+.note-content img { max-width: 100%; border-radius: 12px; margin: 16px 0; }
+.note-content a { color: var(--accent); text-decoration: underline; }
+.note-content table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+.note-content th, .note-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+.note-content th { background: var(--bg2); font-weight: 600; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast-container"></div>
+<div id="pres-overlay">
+  <div id="pres-bar">
+    <button onclick="exitPresentation()" style="background:none;border:1px solid #333;color:#aaa;padding:6px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px"><i class="fas fa-times"></i> Exit</button>
+    <span id="pres-title" style="color:#888;font-size:14px"></span>
+    <div style="display:flex;gap:8px">
+      <button onclick="presNav(-1)" style="background:none;border:1px solid #333;color:#aaa;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:14px"><i class="fas fa-chevron-left"></i></button>
+      <button onclick="presNav(1)" style="background:none;border:1px solid #333;color:#aaa;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:14px"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+  <div id="pres-content"></div>
+</div>
+
+<script>
+/* ============================================================
+   STATE MANAGEMENT
+   ============================================================ */
+const KEYS = { user:'sn_user', theme:'sn_theme', notes:'sn_notes', cats:'sn_cats', codes:'sn_codes', users:'sn_users', msgs:'sn_msgs' };
+
+function load(k) { try { return JSON.parse(localStorage.getItem(k)) || null; } catch { return null; } }
+function save(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+
+const S = {
+  user: load(KEYS.user),
+  theme: load(KEYS.theme) || 'light',
+  notes: load(KEYS.notes) || [],
+  cats: load(KEYS.cats) || [],
+  codes: load(KEYS.codes) || [],
+  users: load(KEYS.users) || [],
+  msgs: load(KEYS.msgs) || [],
+  editingNote: null,
+  searchQ: ''
+};
+
+function persist() {
+  save(KEYS.notes, S.notes); save(KEYS.cats, S.cats);
+  save(KEYS.codes, S.codes); save(KEYS.users, S.users); save(KEYS.msgs, S.msgs);
+  if (S.user) save(KEYS.user, S.user); else localStorage.removeItem(KEYS.user);
+}
+
+/* ============================================================
+   SEED DATA
+   ============================================================ */
+function seed() {
+  if (S.cats.length) return;
+  S.cats = [
+    { id:'c1', name:'Arduino', icon:'fa-microchip', color:'#0EA5E9' },
+    { id:'c2', name:'ESP32', icon:'fa-wifi', color:'#8B5CF6' },
+    { id:'c3', name:'Python', icon:'fa-code', color:'#10B981' },
+    { id:'c4', name:'Electronics', icon:'fa-bolt', color:'#F59E0B' },
+    { id:'c5', name:'Projects', icon:'fa-rocket', color:'#EF4444' },
+    { id:'c6', name:'Grade 6', icon:'fa-graduation-cap', color:'#EC4899' },
+    { id:'c7', name:'Grade 7', icon:'fa-graduation-cap', color:'#14B8A6' },
+    { id:'c8', name:'Grade 8', icon:'fa-graduation-cap', color:'#F97316' }
+  ];
+  S.notes = [
+    { id:'n1', title:'Introduction to Arduino', desc:'Learn what Arduino is, how it works, and set up your first board.', catId:'c1', cover:'https://picsum.photos/seed/arduinointro/800/400.jpg', content:`<h2>What is Arduino?</h2><p>Arduino is an open-source electronics platform based on easy-to-use hardware and software. It consists of a microcontroller board and a development environment for writing code.</p><h2>Key Components</h2><ul><li><strong>Microcontroller</strong> — The brain of the board (ATmega328P for Uno)</li><li><strong>Digital Pins</strong> — 14 pins (6 PWM capable)</li><li><strong>Analog Pins</strong> — 6 analog input pins</li><li><strong>USB Port</strong> — For power and programming</li><li><strong>Power Jack</strong> — 7-12V external power input</li></ul><h2>Your First Sketch</h2><p>Every Arduino program has two main functions:</p><pre><code>void setup() {\n  // Runs once at startup\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  // Runs repeatedly\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}</code></pre><p>This simple program blinks the built-in LED on pin 13 every second.</p>`, visibility:'public', created:'2025-01-15', updated:'2025-01-15' },
+    { id:'n2', title:'LED Blink with Arduino', desc:'Build your first circuit: blink an external LED using a breadboard and resistor.', catId:'c1', cover:'https://picsum.photos/seed/ledblink/800/400.jpg', content:`<h2>Components Needed</h2><ul><li>Arduino Uno</li><li>Breadboard</li><li>LED (any color)</li><li>220 ohm resistor</li><li>Jumper wires</li></ul><h2>Circuit Diagram</h2><p>Connect the LED's longer leg (anode) to digital pin 8 through a 220 ohm resistor. Connect the shorter leg (cathode) to GND.</p><h2>Code</h2><pre><code>void setup() {\n  pinMode(8, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(8, HIGH);\n  delay(500);\n  digitalWrite(8, LOW);\n  delay(500);\n}</code></pre><h2>How It Works</h2><p>The <code>digitalWrite()</code> function sends a HIGH (5V) or LOW (0V) signal to the pin. The resistor limits current to protect the LED from burning out.</p>`, visibility:'public', created:'2025-01-18', updated:'2025-01-20' },
+    { id:'n3', title:'ESP32 WiFi Setup', desc:'Configure the ESP32 to connect to WiFi and send HTTP requests.', catId:'c2', cover:'https://picsum.photos/seed/esp32wifi/800/400.jpg', content:`<h2>Why ESP32?</h2><p>The ESP32 is a powerful microcontroller with built-in WiFi and Bluetooth. It's perfect for IoT projects.</p><h2>WiFi Connection Code</h2><pre><code>#include &lt;WiFi.h&gt;\n\nconst char* ssid = "YourNetwork";\nconst char* password = "YourPassword";\n\nvoid setup() {\n  Serial.begin(115200);\n  WiFi.begin(ssid, password);\n  \n  while (WiFi.status() != WL_CONNECTED) {\n    delay(500);\n    Serial.print(".");\n  }\n  \n  Serial.println("\\nConnected!");\n  Serial.print("IP: ");\n  Serial.println(WiFi.localIP());\n}\n\nvoid loop() {\n  // Your code here\n}</code></pre><h2>Key Points</h2><ul><li>ESP32 supports 2.4GHz WiFi</li><li>Can act as both Station and Access Point</li><li>Has built-in TCP/IP stack</li></ul>`, visibility:'locked', created:'2025-02-01', updated:'2025-02-01' },
+    { id:'n4', title:'Python Basics: Variables', desc:'Understand variables, data types, and basic operations in Python.', catId:'c3', cover:'https://picsum.photos/seed/pythonvars/800/400.jpg', content:`<h2>What are Variables?</h2><p>Variables are containers for storing data values. In Python, you don't need to declare a type — it's inferred automatically.</p><h2>Examples</h2><pre><code># Integer\nage = 15\n\n# Float\ntemperature = 36.5\n\n# String\nname = "Sharmi"\n\n# Boolean\nis_student = True\n\n# List\ngrades = [85, 92, 78, 96]\n\nprint(type(age))       # &lt;class 'int'&gt;\nprint(type(name))      # &lt;class 'str'&gt;\nprint(len(grades))     # 4</code></pre><h2>Type Conversion</h2><pre><code>x = "10"\ny = int(x)\nz = float(x)\nprint(y + 5)  # 15</code></pre>`, visibility:'public', created:'2025-02-05', updated:'2025-02-05' },
+    { id:'n5', title:'Building a Traffic Light', desc:'Create a realistic traffic light circuit using three LEDs and Arduino.', catId:'c5', cover:'https://picsum.photos/seed/trafficlight/800/400.jpg', content:`<h2>Project Overview</h2><p>Build a traffic light that cycles through red, yellow, and green with realistic timing.</p><h2>Components</h2><ul><li>1x Arduino Uno</li><li>1x Red LED</li><li>1x Yellow LED</li><li>1x Green LED</li><li>3x 220 ohm resistors</li><li>Breadboard and wires</li></ul><h2>Code</h2><pre><code>int red = 4, yellow = 3, green = 2;\n\nvoid setup() {\n  pinMode(red, OUTPUT);\n  pinMode(yellow, OUTPUT);\n  pinMode(green, OUTPUT);\n}\n\nvoid loop() {\n  // Green for 5 seconds\n  digitalWrite(green, HIGH);\n  delay(5000);\n  digitalWrite(green, LOW);\n  \n  // Yellow for 2 seconds\n  digitalWrite(yellow, HIGH);\n  delay(2000);\n  digitalWrite(yellow, LOW);\n  \n  // Red for 5 seconds\n  digitalWrite(red, HIGH);\n  delay(5000);\n  digitalWrite(red, LOW);\n}</code></pre>`, visibility:'locked', created:'2025-02-10', updated:'2025-02-12' },
+    { id:'n6', title:'Ohm\'s Law Explained', desc:'Understand the relationship between voltage, current, and resistance.', catId:'c4', cover:'https://picsum.photos/seed/ohmslaw/800/400.jpg', content:`<h2>The Law</h2><p>Ohm's Law states that the current through a conductor between two points is directly proportional to the voltage across the two points.</p><h2>Formula</h2><pre><code>V = I × R\n\nWhere:\n  V = Voltage (Volts)\n  I = Current (Amperes)\n  R = Resistance (Ohms)</code></pre><h2>Example</h2><p>If a circuit has a 9V battery and a 300 ohm resistor:</p><pre><code>I = V / R\nI = 9 / 300\nI = 0.03 A = 30 mA</code></pre><h2>Why It Matters</h2><ul><li>Calculate the right resistor for your LED circuits</li><li>Prevent component damage from excessive current</li><li>Design safe and efficient circuits</li></ul>`, visibility:'public', created:'2025-02-15', updated:'2025-02-15' }
+  ];
+  S.codes = [
+    { id:'ac1', code:'SHAR-7F2A-KL91', status:'active', owner:'student1@test.com', created:'2025-01-10', activated:'2025-01-12', expires:null },
+    { id:'ac2', code:'SHAR-B3C8-MN42', status:'unused', owner:null, created:'2025-02-01', activated:null, expires:null },
+    { id:'ac3', code:'SHAR-P1D5-RX77', status:'disabled', owner:null, created:'2025-01-05', activated:null, expires:null }
+  ];
+  S.users = [
+    { id:'u1', name:'Admin', email:'admin@sharminotes.com', password:'admin123', role:'admin', hasAccess:true, created:'2025-01-01' },
+    { id:'u2', name:'Ahmed Ali', email:'student1@test.com', password:'student123', role:'user', hasAccess:true, created:'2025-01-10' }
+  ];
+  persist();
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function uid() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+function getCat(id) { return S.cats.find(c => c.id === id) || { name:'Uncategorized', icon:'fa-folder', color:'#888' }; }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle' };
+  t.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(40px)'; t.style.transition = 'all 0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function highlightCode(code) {
+  let h = escHtml(code);
+  // Comments
+  h = h.replace(/(\/\/.*$|#.*$)/gm, '<span class="hl-cm">$1</span>');
+  // Strings
+  h = h.replace(/(&quot;.*?&quot;|&#039;.*?&#039;|".*?"|'.*?')/g, '<span class="hl-str">$1</span>');
+  // Numbers
+  h = h.replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-num">$1</span>');
+  // Keywords
+  const kws = ['void','int','float','double','char','bool','String','const','if','else','for','while','do','return','include','define','class','def','import','from','print','True','False','None','self','async','await','try','except','finally','with','as','in','not','and','or','is','lambda','yield','pass','break','continue','raise','new','let','var','function','struct','unsigned','long','byte','HIGH','LOW','OUTPUT','INPUT','setup','loop','delay','digitalWrite','digitalRead','analogRead','analogWrite','pinMode','Serial','begin','println','print','WiFi','begin','status','WL_CONNECTED','localIP','type','len'];
+  kws.forEach(k => { h = h.replace(new RegExp('\\b(' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b', 'g'), '<span class="hl-kw">$1</span>'); });
+  return h;
+}
+
+function renderCodeBlocks(html) {
+  return html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (m, code) => {
+    const decoded = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#039;/g,"'");
+    const lines = decoded.split('\n');
+    const numbered = lines.map((l,i) => `<span class="line-num">${i+1}</span>${highlightCode(l)}`).join('\n');
+    const cid = uid();
+    return `<div class="code-block"><div class="code-block-header"><span class="code-block-lang">code</span><button class="code-block-copy" data-copy="${cid}"><i class="fas fa-copy"></i> Copy</button></div><pre id="${cid}">${numbered}</pre></div>`;
+  });
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function applyTheme() {
+  document.documentElement.classList.toggle('dark', S.theme === 'dark');
+  localStorage.setItem(KEYS.theme, S.theme);
+}
+function toggleTheme() { S.theme = S.theme === 'dark' ? 'light' : 'dark'; applyTheme(); render(); }
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function nav(route) { window.location.hash = route; }
+function getRoute() { return window.location.hash.slice(1) || '/'; }
+
+window.addEventListener('hashchange', render);
+window.addEventListener('keydown', (e) => {
+  if (document.getElementById('pres-overlay').classList.contains('active')) {
+    if (e.key === 'Escape') exitPresentation();
+    if (e.key === 'ArrowRight') presNav(1);
+    if (e.key === 'ArrowLeft') presNav(-1);
+  }
+});
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+let particlesActive = false;
+function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes = [];
+  const COUNT = 60, MAX_DIST = 140;
+
+  function resize() { w = canvas.width = canvas.parentElement.offsetWidth; h = canvas.height = canvas.parentElement.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  for (let i = 0; i < COUNT; i++) {
+    nodes.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4, r: Math.random()*2+1 });
+  }
+
+  function draw() {
+    if (!particlesActive) return;
+    ctx.clearRect(0,0,w,h);
+    // Lines
+    for (let i=0;i<nodes.length;i++) {
+      for (let j=i+1;j<nodes.length;j++) {
+        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if (dist<MAX_DIST) {
+          const alpha = (1 - dist/MAX_DIST) * 0.25;
+          ctx.strokeStyle = `rgba(251,191,36,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+        }
+      }
+    }
+    // Nodes
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(251,191,36,0.5)';
+      ctx.fill();
+      // Glow
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r+3, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(251,191,36,0.08)';
+      ctx.fill();
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > w) n.vx *= -1;
+      if (n.y < 0 || n.y > h) n.vy *= -1;
+    });
+    requestAnimationFrame(draw);
+  }
+  particlesActive = true;
+  draw();
+}
+function stopParticles() { particlesActive = false; }
+
+/* ============================================================
+   PRESENTATION MODE
+   ============================================================ */
+function enterPresentation(noteId) {
+  const note = S.notes.find(n => n.id === noteId);
+  if (!note) return;
+  document.getElementById('pres-title').textContent = note.title;
+  document.getElementById('pres-content').innerHTML = renderCodeBlocks(note.content);
+  document.getElementById('pres-overlay').classList.add('active');
+  document.getElementById('pres-content').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function exitPresentation() {
+  document.getElementById('pres-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function presNav(dir) {
+  const el = document.getElementById('pres-content');
+  el.scrollBy({ top: dir * window.innerHeight * 0.7, behavior: 'smooth' });
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+function themeBtn() {
+  return `<button data-action="toggle-theme" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:bg-[var(--bg2)]" title="Toggle theme"><i class="fas ${S.theme==='dark'?'fa-sun':'fa-moon'}" style="color:var(--fg2)"></i></button>`;
+}
+
+function navbar() {
+  const r = getRoute();
+  const isHome = r === '/';
+  const bg = isHome ? 'transparent absolute top-0 left-0 right-0 z-40' : 'sticky top-0 z-40';
+  const text = isHome ? 'text-white' : '';
+  return `<nav class="${bg} transition-all duration-300" id="main-nav">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#/" class="flex items-center gap-2 no-underline ${text}" style="color:${isHome?'#fff':'var(--fg)'}">
+        <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center">
+          <i class="fas fa-book-open text-white text-sm"></i>
+        </div>
+        <span class="font-bold text-lg">SharmiNotes</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6">
+        <a href="#/" class="text-sm font-medium no-underline ${text}" style="color:${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'};transition:color 0.2s" onmouseover="this.style.color='${isHome?'#fff':'var(--fg)'}'" onmouseout="this.style.color='${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'}'">Home</a>
+        <a href="#/notes" class="text-sm font-medium no-underline ${text}" style="color:${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'};transition:color 0.2s" onmouseover="this.style.color='${isHome?'#fff':'var(--fg)'}'" onmouseout="this.style.color='${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'}'">Lessons</a>
+        <a href="#/contact" class="text-sm font-medium no-underline ${text}" style="color:${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'};transition:color 0.2s" onmouseover="this.style.color='${isHome?'#fff':'var(--fg)'}'" onmouseout="this.style.color='${isHome?'rgba(255,255,255,0.75)':'var(--fg2)'}'">Contact</a>
+      </div>
+      <div class="flex items-center gap-3">
+        ${themeBtn()}
+        ${S.user ? (S.user.role === 'admin'
+          ? `<a href="#/admin" class="btn-primary btn-sm no-underline"><i class="fas fa-tachometer-alt"></i> Dashboard</a>`
+          : `<a href="#/dashboard" class="btn-primary btn-sm no-underline"><i class="fas fa-th-large"></i> Dashboard</a>`)
+          : `<a href="#/login" class="btn-secondary btn-sm no-underline ${text}" style="${isHome?'border-color:rgba(255,255,255,0.3);color:#fff':''}">Login</a>`
+        }
+        <button class="md:hidden w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--bg2);border:none;color:var(--fg);cursor:pointer" data-action="mobile-menu"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+    <div id="mobile-nav" class="hidden md:hidden px-6 pb-4" style="background:var(--card)">
+      <a href="#/" class="block py-2 text-sm font-medium no-underline" style="color:var(--fg2)">Home</a>
+      <a href="#/notes" class="block py-2 text-sm font-medium no-underline" style="color:var(--fg2)">Lessons</a>
+      <a href="#/contact" class="block py-2 text-sm font-medium no-underline" style="color:var(--fg2)">Contact</a>
+    </div>
+  </nav>`;
+}
+
+function footer() {
+  return `<footer style="background:var(--bg2);border-top:1px solid var(--border);margin-top:80px">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div style="width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-book-open text-white text-xs"></i></div>
+            <span class="font-bold">SharmiNotes</span>
+          </div>
+          <p class="text-sm" style="color:var(--fg2);line-height:1.7">A simple place to learn Arduino, ESP32, Electronics, Python, and STEM. Built for classroom teaching.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm" style="color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Quick Links</h4>
+          <div class="flex flex-col gap-2">
+            <a href="#/" class="text-sm no-underline" style="color:var(--fg2)">Home</a>
+            <a href="#/notes" class="text-sm no-underline" style="color:var(--fg2)">Lessons</a>
+            <a href="#/contact" class="text-sm no-underline" style="color:var(--fg2)">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-sm" style="color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Categories</h4>
+          <div class="flex flex-wrap gap-2">
+            ${S.cats.slice(0,5).map(c => `<span class="badge badge-stone">${c.name}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="mt-10 pt-6" style="border-top:1px solid var(--border)">
+        <p class="text-xs text-center" style="color:var(--muted)">SharmiNotes. Built with care for STEM education.</p>
+      </div>
+    </div>
+  </footer>`;
+}
+
+function noteCard(note, idx) {
+  const cat = getCat(note.catId);
+  const isLocked = note.visibility === 'locked' && !(S.user && (S.user.role === 'admin' || S.user.hasAccess));
+  return `<div class="card anim-slide" style="animation-delay:${idx*0.08}s">
+    <div style="position:relative;overflow:hidden">
+      <img src="${note.cover}" alt="${escHtml(note.title)}" style="width:100%;height:200px;object-fit:cover;display:block" onerror="this.style.background='var(--bg2)';this.style.height='200px'">
+      ${isLocked ? '<div style="position:absolute;top:12px;right:12px;width:32px;height:32px;background:rgba(0,0,0,0.6);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fas fa-lock text-white text-xs"></i></div>' : ''}
+      <span class="badge" style="position:absolute;bottom:12px;left:12px;background:${cat.color}22;color:${cat.color};backdrop-filter:blur(8px)"><i class="fas ${cat.icon}" style="margin-right:4px"></i>${cat.name}</span>
+    </div>
+    <div style="padding:20px">
+      <h3 class="font-bold text-base mb-2" style="color:var(--fg)">${escHtml(note.title)}</h3>
+      <p class="text-sm mb-4" style="color:var(--fg2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escHtml(note.desc)}</p>
+      <div class="flex items-center justify-between">
+        <span class="text-xs" style="color:var(--muted)">${fmtDate(note.updated)}</span>
+        ${isLocked
+          ? `<button class="btn-primary btn-sm" data-action="go-unlock"><i class="fas fa-lock"></i> Unlock</button>`
+          : `<a href="#/notes/${note.id}" class="btn-secondary btn-sm no-underline">Read <i class="fas fa-arrow-right" style="font-size:11px"></i></a>`
+        }
+      </div>
+    </div>
+  </div>`;
+}
+
+function adminSidebar() {
+  const r = getRoute();
+  const items = [
+    { route:'/admin', icon:'fa-tachometer-alt', label:'Dashboard' },
+    { route:'/admin/notes', icon:'fa-file-alt', label:'Notes' },
+    { route:'/admin/categories', icon:'fa-folder', label:'Categories' },
+    { route:'/admin/codes', icon:'fa-key', label:'Access Codes' },
+    { route:'/admin/users', icon:'fa-users', label:'Users' },
+    { route:'/admin/messages', icon:'fa-envelope', label:'Messages' },
+    { route:'/admin/settings', icon:'fa-cog', label:'Settings' }
+  ];
+  return `<aside class="admin-sidebar" id="admin-sidebar">
+    <div style="padding:24px 20px;border-bottom:1px solid var(--border)">
+      <a href="#/" class="flex items-center gap-2 no-underline" style="color:var(--fg)">
+        <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center"><i class="fas fa-book-open text-white text-sm"></i></div>
+        <span class="font-bold text-lg">SharmiNotes</span>
+      </a>
+      <p class="text-xs mt-1" style="color:var(--muted)">Admin Panel</p>
+    </div>
+    <nav style="padding:12px 0">
+      ${items.map(i => `<a href="#${i.route}" class="nav-item ${r===i.route?'active':''}"><i class="fas ${i.icon}" style="width:18px;text-align:center"></i>${i.label}</a>`).join('')}
+    </nav>
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px;border-top:1px solid var(--border)">
+      <div class="flex items-center gap-3 mb-3">
+        <div style="width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">A</div>
+        <div><p class="text-sm font-semibold" style="color:var(--fg)">${escHtml(S.user?.name||'Admin')}</p><p class="text-xs" style="color:var(--muted)">${escHtml(S.user?.email||'')}</p></div>
+      </div>
+      <button data-action="logout" class="w-full text-left nav-item" style="margin:0;color:var(--danger)"><i class="fas fa-sign-out-alt" style="width:18px;text-align:center"></i>Logout</button>
+    </div>
+  </aside>`;
+}
+
+function adminTopbar(title) {
+  return `<div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+    <div class="flex items-center gap-3">
+      <button class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--bg2);border:1px solid var(--border);color:var(--fg);cursor:pointer" data-action="toggle-sidebar"><i class="fas fa-bars"></i></button>
+      <h1 class="text-2xl font-bold">${title}</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      ${themeBtn()}
+      <a href="#/" class="btn-secondary btn-sm no-underline"><i class="fas fa-external-link-alt"></i> View Site</a>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   PAGES
+   ============================================================ */
+
+// --- LANDING ---
+function pageLanding() {
+  stopParticles();
+  setTimeout(initParticles, 100);
+  const publicNotes = S.notes.filter(n => n.visibility === 'public').slice(0,3);
+  return `${navbar()}
+  <section style="position:relative;min-height:100vh;background:linear-gradient(160deg,#0C0A09 0%,#1C1917 50%,#292524 100%);overflow:hidden;display:flex;align-items:center">
+    <canvas id="particles-canvas"></canvas>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(217,119,6,0.08) 0%,transparent 60%)"></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10 py-32">
+      <div class="max-w-2xl">
+        <div class="anim-slide">
+          <span class="badge badge-amber mb-6" style="font-size:13px;padding:6px 14px"><i class="fas fa-sparkles" style="margin-right:6px"></i>STEM Teaching Platform</span>
+        </div>
+        <h1 class="anim-slide delay-1" style="font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;color:#fff;line-height:1.1;margin:0 0 20px">
+          Welcome to<br><span style="background:linear-gradient(135deg,#FBBF24,#F59E0B,#D97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">SharmiNotes</span>
+        </h1>
+        <p class="anim-slide delay-2" style="font-size:1.2rem;color:#A8A29E;line-height:1.7;max-width:500px;margin:0 0 36px">
+          A simple place to learn Arduino, ESP32, Electronics, Python, and STEM.
+        </p>
+        <div class="flex flex-wrap gap-4 anim-slide delay-3">
+          <a href="#/notes" class="btn-primary no-underline" style="padding:14px 32px;font-size:16px;border-radius:14px"><i class="fas fa-compass"></i> Explore Notes</a>
+          <a href="#/login" class="no-underline" style="padding:13px 31px;font-size:16px;border-radius:14px;font-weight:600;color:#fff;border:1.5px solid rgba(255,255,255,0.2);transition:all 0.25s;display:inline-flex;align-items:center;gap:8px" onmouseover="this.style.borderColor='rgba(255,255,255,0.5)';this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.background='transparent'"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);animation:float 2s ease-in-out infinite">
+      <a href="#about-section" style="color:#78716C;text-decoration:none"><i class="fas fa-chevron-down"></i></a>
+    </div>
+  </section>
+
+  <section id="about-section" class="max-w-7xl mx-auto px-6 py-24">
+    <div class="text-center mb-16 anim-slide">
+      <span class="badge badge-amber mb-4">About</span>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Everything You Need to Learn STEM</h2>
+      <p style="color:var(--fg2);max-width:560px;margin:0 auto;line-height:1.7">Carefully organized notes designed for classroom teaching. Simple, clear, and projector-friendly.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      ${[
+        { icon:'fa-microchip', color:'#0EA5E9', title:'Arduino', desc:'From basics to advanced projects with the Arduino Uno platform.' },
+        { icon:'fa-wifi', color:'#8B5CF6', title:'ESP32', desc:'WiFi and Bluetooth projects with the powerful ESP32 microcontroller.' },
+        { icon:'fa-code', color:'#10B981', title:'Python', desc:'Programming fundamentals and projects using Python.' },
+        { icon:'fa-bolt', color:'#F59E0B', title:'Electronics', desc:'Circuit theory, components, and hands-on experiments.' }
+      ].map((f,i) => `<div class="card anim-slide" style="animation-delay:${i*0.1}s;padding:32px;text-align:center">
+        <div style="width:56px;height:56px;border-radius:14px;background:${f.color}15;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas ${f.icon}" style="font-size:22px;color:${f.color}"></i>
+        </div>
+        <h3 class="font-bold text-lg mb-2">${f.title}</h3>
+        <p class="text-sm" style="color:var(--fg2);line-height:1.6">${f.desc}</p>
+      </div>`).join('')}
+    </div>
+  </section>
+
+  <section style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16 anim-slide">
+        <span class="badge badge-amber mb-4">Lessons</span>
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Sample Lessons</h2>
+        <p style="color:var(--fg2);max-width:480px;margin:0 auto">Start learning with these free public lessons. Unlock premium content with an access code.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        ${publicNotes.map((n,i) => noteCard(n,i)).join('')}
+      </div>
+      <div class="text-center mt-10">
+        <a href="#/notes" class="btn-secondary no-underline">View All Lessons <i class="fas fa-arrow-right" style="font-size:12px"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-6 py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div class="anim-slide">
+        <span class="badge badge-amber mb-4">Contact</span>
+        <h2 class="text-3xl font-bold mb-4">Get in Touch</h2>
+        <p class="mb-8" style="color:var(--fg2);line-height:1.7">Have questions about the lessons or want to request a topic? Send a message and I'll get back to you.</p>
+        <form id="contact-form" class="flex flex-col gap-4">
+          <input type="text" class="input-field" placeholder="Your name" required id="cf-name">
+          <input type="email" class="input-field" placeholder="Your email" required id="cf-email">
+          <textarea class="input-field" rows="5" placeholder="Your message" required id="cf-msg" style="resize:vertical"></textarea>
+          <button type="submit" class="btn-primary self-start"><i class="fas fa-paper-plane"></i> Send Message</button>
+        </form>
+      </div>
+      <div class="anim-slide delay-2">
+        <div class="card p-8 mb-6">
+          <h3 class="font-bold text-lg mb-4"><i class="fas fa-lightbulb" style="color:var(--accent);margin-right:8px"></i>Quick Info</h3>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3"><i class="fas fa-chalkboard-teacher" style="color:var(--muted);width:20px"></i><span class="text-sm" style="color:var(--fg2)">Designed for daily classroom use</span></div>
+            <div class="flex items-center gap-3"><i class="fas fa-tv" style="color:var(--muted);width:20px"></i><span class="text-sm" style="color:var(--fg2)">Projector-optimized presentation mode</span></div>
+            <div class="flex items-center gap-3"><i class="fas fa-shield-alt" style="color:var(--muted);width:20px"></i><span class="text-sm" style="color:var(--fg2)">Secure access code system</span></div>
+            <div class="flex items-center gap-3"><i class="fas fa-moon" style="color:var(--muted);width:20px"></i><span class="text-sm" style="color:var(--fg2)">Dark mode for comfortable reading</span></div>
+          </div>
+        </div>
+        <div class="card p-8" style="background:linear-gradient(135deg,#1C1917,#292524);border-color:#44403C">
+          <h3 class="font-bold text-lg mb-2" style="color:#FBBF24">Want Access?</h3>
+          <p class="text-sm mb-4" style="color:#A8A29E;line-height:1.6">Contact your instructor to receive a unique access code that unlocks all premium lessons.</p>
+          <a href="#/unlock" class="btn-primary btn-sm no-underline"><i class="fas fa-key"></i> Enter Access Code</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  ${footer()}`;
+}
+
+// --- LOGIN ---
+function pageLogin() {
+  return `${navbar()}<div class="min-h-screen flex items-center justify-center px-6" style="padding-top:100px;padding-bottom:60px">
+    <div class="w-full max-w-md anim-scale">
+      <div class="text-center mb-8">
+        <div style="width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><i class="fas fa-sign-in-alt text-white text-lg"></i></div>
+        <h1 class="text-2xl font-bold mb-2">Welcome Back</h1>
+        <p class="text-sm" style="color:var(--fg2)">Sign in to your SharmiNotes account</p>
+      </div>
+      <form id="login-form" class="card p-8 flex flex-col gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Email</label>
+          <input type="email" class="input-field" placeholder="you@example.com" required id="login-email">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Password</label>
+          <input type="password" class="input-field" placeholder="Enter your password" required id="login-pass">
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center mt-2"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+        <p class="text-center text-sm" style="color:var(--fg2)">Don't have an account? <a href="#/register" style="color:var(--accent);font-weight:600;text-decoration:none">Register</a></p>
+        <div class="mt-2 p-3 rounded-lg text-xs" style="background:var(--bg2);color:var(--muted)">
+          <strong>Demo Admin:</strong> admin@sharminotes.com / admin123<br>
+          <strong>Demo Student:</strong> student1@test.com / student123
+        </div>
+      </form>
+    </div>
+  </div>`;
+}
+
+// --- REGISTER ---
+function pageRegister() {
+  return `${navbar()}<div class="min-h-screen flex items-center justify-center px-6" style="padding-top:100px;padding-bottom:60px">
+    <div class="w-full max-w-md anim-scale">
+      <div class="text-center mb-8">
+        <div style="width:52px;height:52px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><i class="fas fa-user-plus text-white text-lg"></i></div>
+        <h1 class="text-2xl font-bold mb-2">Create Account</h1>
+        <p class="text-sm" style="color:var(--fg2)">Join SharmiNotes and start learning</p>
+      </div>
+      <form id="register-form" class="card p-8 flex flex-col gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Full Name</label>
+          <input type="text" class="input-field" placeholder="Your full name" required id="reg-name">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Email</label>
+          <input type="email" class="input-field" placeholder="you@example.com" required id="reg-email">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Password</label>
+          <input type="password" class="input-field" placeholder="Min 6 characters" required minlength="6" id="reg-pass">
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center mt-2"><i class="fas fa-user-plus"></i> Create Account</button>
+        <p class="text-center text-sm" style="color:var(--fg2)">Already have an account? <a href="#/login" style="color:var(--accent);font-weight:600;text-decoration:none">Sign In</a></p>
+      </form>
+    </div>
+  </div>`;
+}
+
+// --- ADMIN DASHBOARD ---
+function pageAdmin() {
+  const stats = [
+    { label:'Total Notes', value: S.notes.length, icon:'fa-file-alt', color:'#0EA5E9' },
+    { label:'Users', value: S.users.filter(u=>u.role==='user').length, icon:'fa-users', color:'#8B5CF6' },
+    { label:'Active Codes', value: S.codes.filter(c=>c.status==='active').length, icon:'fa-key', color:'#10B981' },
+    { label:'Categories', value: S.cats.length, icon:'fa-folder', color:'#F59E0B' }
+  ];
+  const recent = [...S.notes].sort((a,b) => b.updated.localeCompare(a.updated)).slice(0,5);
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Dashboard')}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+      ${stats.map((s,i) => `<div class="card p-6 anim-slide" style="animation-delay:${i*0.08}s">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium" style="color:var(--fg2)">${s.label}</span>
+          <div style="width:40px;height:40px;border-radius:10px;background:${s.color}15;display:flex;align-items:center;justify-content:center"><i class="fas ${s.icon}" style="color:${s.color}"></i></div>
+        </div>
+        <p class="text-3xl font-bold">${s.value}</p>
+      </div>`).join('')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 card p-6 anim-slide delay-1">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-bold text-lg">Recent Notes</h2>
+          <a href="#/admin/notes" class="text-sm font-medium no-underline" style="color:var(--accent)">View All</a>
+        </div>
+        <div class="flex flex-col gap-3">
+          ${recent.map(n => {
+            const cat = getCat(n.catId);
+            return `<div class="flex items-center gap-4 p-3 rounded-xl transition-all hover:bg-[var(--bg2)]">
+              <img src="${n.cover}" style="width:48px;height:48px;border-radius:10px;object-fit:cover" onerror="this.style.background='var(--bg2)'">
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-sm truncate">${escHtml(n.title)}</p>
+                <p class="text-xs" style="color:var(--muted)">${cat.name} &middot; ${fmtDate(n.updated)}</p>
+              </div>
+              <span class="badge ${n.visibility==='public'?'badge-emerald':'badge-amber'}">${n.visibility}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="card p-6 anim-slide delay-2">
+        <h2 class="font-bold text-lg mb-6">Quick Actions</h2>
+        <div class="flex flex-col gap-3">
+          <a href="#/admin/notes/new" class="btn-primary w-full justify-center no-underline"><i class="fas fa-plus"></i> New Note</a>
+          <a href="#/admin/codes" class="btn-secondary w-full justify-center no-underline"><i class="fas fa-key"></i> Generate Code</a>
+          <a href="#/admin/categories" class="btn-secondary w-full justify-center no-underline"><i class="fas fa-folder"></i> Manage Categories</a>
+        </div>
+        <div class="mt-6 p-4 rounded-xl" style="background:var(--bg2)">
+          <p class="text-xs font-medium mb-1" style="color:var(--muted)">Messages</p>
+          <p class="text-2xl font-bold">${S.msgs.length}</p>
+          <p class="text-xs" style="color:var(--muted)">Unread contact messages</p>
+        </div>
+      </div>
+    </div>
+  </main>`;
+}
+
+// --- ADMIN NOTES ---
+function pageAdminNotes() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Notes')}
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+      <div class="relative flex-1 max-w-md">
+        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px"></i>
+        <input type="text" class="input-field" style="padding-left:40px" placeholder="Search notes..." id="admin-note-search" value="${escHtml(S.searchQ)}">
+      </div>
+      <a href="#/admin/notes/new" class="btn-primary no-underline"><i class="fas fa-plus"></i> New Note</a>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Note</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);display:none" class="sm:table-cell">Category</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Status</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);display:none" class="md:table-cell">Updated</th>
+            <th style="text-align:right;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Actions</th>
+          </tr></thead>
+          <tbody>
+            ${S.notes.filter(n => !S.searchQ || n.title.toLowerCase().includes(S.searchQ.toLowerCase())).map(n => {
+              const cat = getCat(n.catId);
+              return `<tr style="border-bottom:1px solid var(--border);transition:background 0.2s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:12px 16px"><div class="flex items-center gap-3"><img src="${n.cover}" style="width:40px;height:40px;border-radius:8px;object-fit:cover" onerror="this.style.background='var(--bg2)'"><span class="font-medium text-sm">${escHtml(n.title)}</span></div></td>
+                <td style="padding:12px 16px;display:none" class="sm:table-cell"><span class="text-sm" style="color:var(--fg2)">${cat.name}</span></td>
+                <td style="padding:12px 16px"><span class="badge ${n.visibility==='public'?'badge-emerald':'badge-amber'}">${n.visibility}</span></td>
+                <td style="padding:12px 16px;display:none" class="md:table-cell"><span class="text-sm" style="color:var(--muted)">${fmtDate(n.updated)}</span></td>
+                <td style="padding:12px 16px;text-align:right">
+                  <a href="#/notes/${n.id}" class="text-sm no-underline" style="color:var(--muted);margin-right:8px" title="View"><i class="fas fa-eye"></i></a>
+                  <a href="#/admin/notes/edit/${n.id}" class="text-sm no-underline" style="color:var(--accent);margin-right:8px" title="Edit"><i class="fas fa-pen"></i></a>
+                  <button data-action="delete-note" data-id="${n.id}" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:4px" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${S.notes.length === 0 ? '<div class="p-12 text-center" style="color:var(--muted)"><i class="fas fa-file-alt text-3xl mb-3" style="display:block"></i><p class="font-medium">No notes yet</p><p class="text-sm mt-1">Create your first note to get started</p></div>' : ''}
+    </div>
+  </main>`;
+}
+
+// --- ADMIN NOTE EDITOR ---
+function pageAdminNoteEdit() {
+  const r = getRoute();
+  const editId = r.includes('/edit/') ? r.split('/edit/')[1] : null;
+  const note = editId ? S.notes.find(n => n.id === editId) : null;
+  const isNew = !note;
+  const n = note || { title:'', desc:'', catId: S.cats[0]?.id || '', cover:'', content:'', visibility:'public' };
+
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar(isNew ? 'Create Note' : 'Edit Note')}
+    <form id="note-form" class="max-w-4xl">
+      <input type="hidden" id="nf-id" value="${n.id || ''}">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-2 flex flex-col gap-4">
+          <input type="text" class="input-field" style="font-size:18px;font-weight:700;padding:16px" placeholder="Note title..." value="${escHtml(n.title)}" id="nf-title" required>
+          <textarea class="input-field" rows="3" placeholder="Short description..." id="nf-desc" style="resize:vertical">${escHtml(n.desc)}</textarea>
+        </div>
+        <div class="flex flex-col gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Category</label>
+            <select class="input-field" id="nf-cat">${S.cats.map(c => `<option value="${c.id}" ${c.id===n.catId?'selected':''}>${c.name}</option>`).join('')}</select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Visibility</label>
+            <select class="input-field" id="nf-vis">
+              <option value="public" ${n.visibility==='public'?'selected':''}>Public</option>
+              <option value="locked" ${n.visibility==='locked'?'selected':''}>Locked</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Cover Image URL</label>
+            <input type="url" class="input-field" placeholder="https://..." id="nf-cover" value="${escHtml(n.cover)}">
+          </div>
+        </div>
+      </div>
+      ${n.cover ? `<div class="mb-6"><img src="${n.cover}" style="max-width:400px;border-radius:12px;object-fit:cover;max-height:200px" id="nf-cover-preview" onerror="this.style.display='none'"></div>` : '<div id="nf-cover-preview"></div>'}
+      <div class="card mb-6" style="overflow:hidden">
+        <div class="editor-toolbar" id="editor-toolbar">
+          <button type="button" data-cmd="h1" title="Heading 1" style="font-weight:800;font-size:15px">H1</button>
+          <button type="button" data-cmd="h2" title="Heading 2" style="font-weight:700;font-size:14px">H2</button>
+          <button type="button" data-cmd="h3" title="Heading 3" style="font-weight:600;font-size:13px">H3</button>
+          <div class="sep"></div>
+          <button type="button" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+          <button type="button" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+          <button type="button" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+          <div class="sep"></div>
+          <button type="button" data-cmd="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+          <button type="button" data-cmd="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+          <div class="sep"></div>
+          <button type="button" data-cmd="code" title="Code Block"><i class="fas fa-code"></i></button>
+          <button type="button" data-cmd="image" title="Insert Image"><i class="fas fa-image"></i></button>
+          <button type="button" data-cmd="link" title="Insert Link"><i class="fas fa-link"></i></button>
+          <button type="button" data-cmd="table" title="Insert Table"><i class="fas fa-table"></i></button>
+        </div>
+        <div class="editor-area" contenteditable="true" id="nf-content">${n.content}</div>
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> ${isNew ? 'Create Note' : 'Save Changes'}</button>
+        <a href="#/admin/notes" class="btn-secondary no-underline">Cancel</a>
+      </div>
+    </form>
+  </main>`;
+}
+
+// --- ADMIN CATEGORIES ---
+function pageAdminCats() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Categories')}
+    <div class="card p-6 mb-6">
+      <h3 class="font-bold mb-4">Add New Category</h3>
+      <form id="cat-form" class="flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[160px]">
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Name</label>
+          <input type="text" class="input-field" placeholder="Category name" required id="cat-name">
+        </div>
+        <div class="w-32">
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Color</label>
+          <input type="color" class="input-field" style="padding:4px;height:46px;cursor:pointer" id="cat-color" value="#F59E0B">
+        </div>
+        <div class="w-32">
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Icon</label>
+          <select class="input-field" id="cat-icon">
+            ${['fa-microchip','fa-wifi','fa-code','fa-bolt','fa-rocket','fa-graduation-cap','fa-cogs','fa-flask','fa-puzzle-piece','fa-laptop-code','fa-satellite-dish','fa-robot'].map(i => `<option value="${i}">${i.replace('fa-','')}</option>`).join('')}
+          </select>
+        </div>
+        <button type="submit" class="btn-primary btn-sm"><i class="fas fa-plus"></i> Add</button>
+      </form>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      ${S.cats.map(c => {
+        const count = S.notes.filter(n => n.catId === c.id).length;
+        return `<div class="card p-5 anim-slide">
+          <div class="flex items-center justify-between mb-3">
+            <div style="width:40px;height:40px;border-radius:10px;background:${c.color}15;display:flex;align-items:center;justify-content:center"><i class="fas ${c.icon}" style="color:${c.color}"></i></div>
+            <button data-action="delete-cat" data-id="${c.id}" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+          <p class="font-semibold text-sm">${escHtml(c.name)}</p>
+          <p class="text-xs mt-1" style="color:var(--muted)">${count} note${count!==1?'s':''}</p>
+        </div>`;
+      }).join('')}
+    </div>
+  </main>`;
+}
+
+// --- ADMIN ACCESS CODES ---
+function pageAdminCodes() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Access Codes')}
+    <div class="card p-6 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="font-bold">Generate New Code</h3>
+          <p class="text-sm mt-1" style="color:var(--fg2)">Each code can be used once to unlock all premium lessons for a user.</p>
+        </div>
+        <button data-action="generate-code" class="btn-primary"><i class="fas fa-key"></i> Generate Code</button>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Code</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Status</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);display:none" class="sm:table-cell">Owner</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);display:none" class="md:table-cell">Created</th>
+            <th style="text-align:right;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Actions</th>
+          </tr></thead>
+          <tbody>
+            ${S.codes.map(c => `<tr style="border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='transparent'">
+              <td style="padding:12px 16px"><code class="font-mono text-sm font-semibold" style="color:var(--accent)">${c.code}</code></td>
+              <td style="padding:12px 16px"><span class="badge ${c.status==='active'?'badge-emerald':c.status==='unused'?'badge-amber':'badge-red'}">${c.status}</span></td>
+              <td style="padding:12px 16px;display:none" class="sm:table-cell"><span class="text-sm" style="color:var(--fg2)">${c.owner || '—'}</span></td>
+              <td style="padding:12px 16px;display:none" class="md:table-cell"><span class="text-sm" style="color:var(--muted)">${fmtDate(c.created)}</span></td>
+              <td style="padding:12px 16px;text-align:right">
+                ${c.status==='unused' ? `<button data-action="disable-code" data-id="${c.id}" class="btn-sm" style="background:var(--bg2);border:1px solid var(--border);color:var(--fg2);border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;margin-right:4px" title="Disable">Disable</button>` : ''}
+                <button data-action="delete-code" data-id="${c.id}" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:4px" title="Delete"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${S.codes.length === 0 ? '<div class="p-12 text-center" style="color:var(--muted)"><i class="fas fa-key text-3xl mb-3" style="display:block"></i><p>No access codes generated yet</p></div>' : ''}
+    </div>
+  </main>`;
+}
+
+// --- ADMIN USERS ---
+function pageAdminUsers() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Users')}
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">User</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Role</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted)">Access</th>
+            <th style="text-align:left;padding:14px 16px;font-size:13px;font-weight:600;color:var(--muted);display:none" class="sm:table-cell">Joined</th>
+          </tr></thead>
+          <tbody>
+            ${S.users.map(u => `<tr style="border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='transparent'">
+              <td style="padding:12px 16px"><div class="flex items-center gap-3">
+                <div style="width:36px;height:36px;border-radius:10px;background:${u.role==='admin'?'var(--accent)':'var(--bg2)'};display:flex;align-items:center;justify-content:center;color:${u.role==='admin'?'#fff':'var(--fg2)'};font-weight:700;font-size:14px">${u.name.charAt(0).toUpperCase()}</div>
+                <div><p class="font-medium text-sm">${escHtml(u.name)}</p><p class="text-xs" style="color:var(--muted)">${escHtml(u.email)}</p></div>
+              </div></td>
+              <td style="padding:12px 16px"><span class="badge ${u.role==='admin'?'badge-amber':'badge-stone'}">${u.role}</span></td>
+              <td style="padding:12px 16px">${u.hasAccess ? '<span class="badge badge-emerald"><i class="fas fa-check" style="margin-right:4px"></i>Active</span>' : '<span class="badge badge-stone">None</span>'}</td>
+              <td style="padding:12px 16px;display:none" class="sm:table-cell"><span class="text-sm" style="color:var(--muted)">${fmtDate(u.created)}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>`;
+}
+
+// --- ADMIN MESSAGES ---
+function pageAdminMessages() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Messages')}
+    <div class="flex flex-col gap-4">
+      ${S.msgs.length === 0 ? '<div class="card p-12 text-center" style="color:var(--muted)"><i class="fas fa-envelope-open text-3xl mb-3" style="display:block"></i><p>No messages yet</p></div>' :
+      S.msgs.map(m => `<div class="card p-6 anim-slide">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <p class="font-semibold">${escHtml(m.name)}</p>
+            <p class="text-sm" style="color:var(--muted)">${escHtml(m.email)}</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs" style="color:var(--muted)">${fmtDate(m.created)}</span>
+            <button data-action="delete-msg" data-id="${m.id}" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <p class="text-sm" style="color:var(--fg2);line-height:1.7;white-space:pre-wrap">${escHtml(m.message)}</p>
+      </div>`).join('')}
+    </div>
+  </main>`;
+}
+
+// --- ADMIN SETTINGS ---
+function pageAdminSettings() {
+  return `${adminSidebar()}<main class="admin-main">
+    ${adminTopbar('Settings')}
+    <div class="max-w-2xl flex flex-col gap-6">
+      <div class="card p-6">
+        <h3 class="font-bold mb-4">Appearance</h3>
+        <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--bg2)">
+          <div><p class="font-medium text-sm">Dark Mode</p><p class="text-xs" style="color:var(--muted)">Switch between light and dark themes</p></div>
+          <button data-action="toggle-theme" style="width:52px;height:28px;border-radius:14px;border:none;cursor:pointer;position:relative;transition:background 0.3s;background:${S.theme==='dark'?'var(--accent)':'var(--border)'}">
+            <div style="width:22px;height:22px;border-radius:11px;background:#fff;position:absolute;top:3px;transition:left 0.3s;left:${S.theme==='dark'?'27px':'3px'}"></div>
+          </button>
+        </div>
+      </div>
+      <div class="card p-6">
+        <h3 class="font-bold mb-4">Account</h3>
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--bg2)">
+            <div><p class="text-sm" style="color:var(--muted)">Email</p><p class="font-medium text-sm">${escHtml(S.user?.email||'')}</p></div>
+          </div>
+          <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--bg2)">
+            <div><p class="text-sm" style="color:var(--muted)">Role</p><p class="font-medium text-sm">${S.user?.role||''}</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <h3 class="font-bold mb-4">Danger Zone</h3>
+        <button data-action="reset-data" class="btn-danger"><i class="fas fa-exclamation-triangle"></i> Reset All Data</button>
+        <p class="text-xs mt-2" style="color:var(--muted)">This will delete all notes, categories, codes, and users. Admin account will be recreated.</p>
+      </div>
+    </div>
+  </main>`;
+}
+
+// --- USER DASHBOARD ---
+function pageDashboard() {
+  if (!S.user) { nav('/login'); return ''; }
+  const canViewLocked = S.user.hasAccess;
+  const publicNotes = S.notes.filter(n => n.visibility === 'public');
+  const lockedNotes = S.notes.filter(n => n.visibility === 'locked');
+  return `${navbar()}
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="mb-10 anim-slide">
+      <h1 class="text-3xl font-bold mb-2">Welcome back, ${escHtml(S.user.name)}</h1>
+      <p style="color:var(--fg2)">Here's your learning dashboard.</p>
+    </div>
+    ${!canViewLocked ? `<div class="card p-6 mb-8 anim-slide delay-1" style="background:linear-gradient(135deg,#1C1917,#292524);border-color:#44403C">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="font-bold text-lg mb-1" style="color:#FBBF24"><i class="fas fa-lock" style="margin-right:8px"></i>Premium Lessons Locked</h3>
+          <p class="text-sm" style="color:#A8A29E">Enter an access code to unlock ${lockedNotes.length} premium lessons.</p>
+        </div>
+        <a href="#/unlock" class="btn-primary no-underline"><i class="fas fa-key"></i> Enter Access Code</a>
+      </div>
+    </div>` : `<div class="card p-6 mb-8 anim-slide delay-1" style="border-color:var(--success);border-width:1.5px">
+      <div class="flex items-center gap-3">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(5,150,105,0.1);display:flex;align-items:center;justify-content:center"><i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i></div>
+        <div><p class="font-semibold" style="color:var(--success)">Premium Access Active</p><p class="text-sm" style="color:var(--fg2)">You have access to all ${S.notes.length} lessons.</p></div>
+      </div>
+    </div>`}
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 anim-slide delay-2">
+      <h2 class="text-xl font-bold">${canViewLocked ? 'All Lessons' : 'Public Lessons'}</h2>
+      <div class="relative">
+        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px"></i>
+        <input type="text" class="input-field" style="padding-left:40px;width:260px" placeholder="Search lessons..." id="user-search">
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="user-notes-grid">
+      ${(canViewLocked ? S.notes : publicNotes).map((n,i) => noteCard(n,i)).join('')}
+    </div>
+  </div>
+  ${footer()}`;
+}
+
+// --- NOTES LIST (PUBLIC) ---
+function pageNotes() {
+  const publicNotes = S.notes.filter(n => n.visibility === 'public');
+  const hasAccess = S.user && S.user.hasAccess;
+  const visibleNotes = hasAccess ? S.notes : publicNotes;
+  return `${navbar()}
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="text-center mb-10 anim-slide">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">Lessons</h1>
+      <p style="color:var(--fg2);max-width:480px;margin:0 auto">Browse all available lessons. ${!hasAccess ? 'Some lessons require an access code.' : ''}</p>
+    </div>
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-8 anim-slide delay-1">
+      <button class="btn-sm filter-btn active" data-filter="all" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all 0.2s">All</button>
+      ${S.cats.map(c => `<button class="btn-sm filter-btn" data-filter="${c.id}" style="background:var(--bg2);color:var(--fg2);border:1px solid var(--border);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all 0.2s">${c.name}</button>`).join('')}
+    </div>
+    <div class="relative mb-8 max-w-md mx-auto anim-slide delay-2">
+      <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px"></i>
+      <input type="text" class="input-field" style="padding-left:40px" placeholder="Search by title or keyword..." id="notes-search">
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notes-grid">
+      ${visibleNotes.map((n,i) => noteCard(n,i)).join('')}
+    </div>
+    ${visibleNotes.length === 0 ? '<div class="text-center py-16" style="color:var(--muted)"><i class="fas fa-search text-4xl mb-4" style="display:block"></i><p class="font-medium text-lg">No lessons found</p><p class="text-sm mt-1">Try a different search or category</p></div>' : ''}
+  </div>
+  ${footer()}`;
+}
+
+// --- NOTE DETAIL ---
+function pageNoteDetail(id) {
+  const note = S.notes.find(n => n.id === id);
+  if (!note) return `${navbar()}<div class="max-w-7xl mx-auto px-6 py-20 text-center"><h1 class="text-2xl font-bold mb-4">Note Not Found</h1><a href="#/notes" class="btn-primary no-underline">Back to Lessons</a></div>`;
+  const cat = getCat(note.catId);
+  const isLocked = note.visibility === 'locked' && !(S.user && (S.user.role === 'admin' || S.user.hasAccess));
+  const related = S.notes.filter(n => n.id !== note.id && n.catId === note.catId && (!n.visibility==='locked' || (S.user && S.user.hasAccess))).slice(0,3);
+
+  if (isLocked) {
+    return `${navbar()}
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <div class="max-w-lg mx-auto text-center anim-scale">
+        <div style="width:80px;height:80px;border-radius:20px;background:rgba(217,119,6,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 24px"><i class="fas fa-lock" style="font-size:32px;color:var(--accent)"></i></div>
+        <h1 class="text-2xl font-bold mb-3">This Lesson Requires an Access Code</h1>
+        <p class="mb-8" style="color:var(--fg2);line-height:1.7">This is a premium lesson. Enter your access code to unlock all premium content.</p>
+        <a href="#/unlock" class="btn-primary no-underline" style="padding:14px 32px"><i class="fas fa-key"></i> Unlock Lesson</a>
+        <div class="mt-8"><a href="#/notes" class="text-sm no-underline" style="color:var(--muted)"><i class="fas fa-arrow-left" style="margin-right:6px"></i>Back to Lessons</a></div>
+      </div>
+    </div>
+    ${footer()}`;
+  }
+
+  return `${navbar()}
+  <div style="position:relative">
+    <img src="${note.cover}" style="width:100%;height:320px;object-fit:cover;display:block" onerror="this.style.background='var(--bg2)';this.style.height='320px'">
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 60%)"></div>
+  </div>
+  <div class="max-w-4xl mx-auto px-6" style="margin-top:-60px;position:relative;z-index:2">
+    <div class="anim-slide">
+      <span class="badge mb-4" style="background:${cat.color}22;color:${cat.color}"><i class="fas ${cat.icon}" style="margin-right:4px"></i>${cat.name}</span>
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">${escHtml(note.title)}</h1>
+      <p class="text-lg mb-6" style="color:var(--fg2);line-height:1.7">${escHtml(note.desc)}</p>
+      <div class="flex items-center gap-4 mb-8 flex-wrap" style="color:var(--muted);font-size:13px">
+        <span><i class="fas fa-calendar" style="margin-right:6px"></i>Created ${fmtDate(note.created)}</span>
+        <span><i class="fas fa-edit" style="margin-right:6px"></i>Updated ${fmtDate(note.updated)}</span>
+        <button data-action="present" data-id="${note.id}" class="btn-secondary btn-sm" style="margin-left:auto"><i class="fas fa-desktop"></i> Present</button>
+      </div>
+    </div>
+    <div class="note-content anim-slide delay-1" style="margin-bottom:60px">${renderCodeBlocks(note.content)}</div>
+    ${related.length ? `<div class="anim-slide delay-2" style="border-top:1px solid var(--border);padding-top:40px;margin-bottom:80px">
+      <h2 class="text-xl font-bold mb-6">Related Lessons</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">${related.map((n,i) => noteCard(n,i)).join('')}</div>
+    </div>` : ''}
+  </div>
+  ${footer()}`;
+}
+
+// --- UNLOCK ---
+function pageUnlock() {
+  if (!S.user) { nav('/login'); return ''; }
+  if (S.user.hasAccess) return `${navbar()}<div class="max-w-7xl mx-auto px-6 py-20 text-center anim-scale">
+    <div style="width:80px;height:80px;border-radius:20px;background:rgba(5,150,105,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 24px"><i class="fas fa-check-circle" style="font-size:36px;color:var(--success)"></i></div>
+    <h1 class="text-2xl font-bold mb-3">You Already Have Access</h1>
+    <p class="mb-6" style="color:var(--fg2)">All premium lessons are unlocked for your account.</p>
+    <a href="#/notes" class="btn-primary no-underline">Browse Lessons</a>
+  </div>`;
+  return `${navbar()}
+  <div class="min-h-screen flex items-center justify-center px-6" style="padding-top:100px;padding-bottom:60px">
+    <div class="w-full max-w-md anim-scale">
+      <div class="text-center mb-8">
+        <div style="width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><i class="fas fa-key text-white text-lg"></i></div>
+        <h1 class="text-2xl font-bold mb-2">Unlock Premium Lessons</h1>
+        <p class="text-sm" style="color:var(--fg2)">Enter the access code provided by your instructor.</p>
+      </div>
+      <form id="unlock-form" class="card p-8 flex flex-col gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-2" style="color:var(--fg2)">Access Code</label>
+          <input type="text" class="input-field" style="font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:0.05em;text-transform:uppercase;text-align:center" placeholder="SHAR-XXXX-XXXX" required id="unlock-code" maxlength="14">
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center mt-2"><i class="fas fa-unlock"></i> Unlock Lessons</button>
+        <p class="text-center text-sm" style="color:var(--muted)">Codes are provided by your instructor.</p>
+      </form>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render() {
+  stopParticles();
+  const app = document.getElementById('app');
+  let html = '';
+  const r = getRoute();
+
+  // Auth guard for admin routes
+  if (r.startsWith('/admin') && (!S.user || S.user.role !== 'admin')) {
+    nav('/login'); return;
+  }
+
+  if (r === '/') html = pageLanding();
+  else if (r === '/login') html = pageLogin();
+  else if (r === '/register') html = pageRegister();
+  else if (r === '/admin') html = pageAdmin();
+  else if (r === '/admin/notes') html = pageAdminNotes();
+  else if (r === '/admin/notes/new' || r.startsWith('/admin/notes/edit/')) html = pageAdminNoteEdit();
+  else if (r === '/admin/categories') html = pageAdminCats();
+  else if (r === '/admin/codes') html = pageAdminCodes();
+  else if (r === '/admin/users') html = pageAdminUsers();
+  else if (r === '/admin/messages') html = pageAdminMessages();
+  else if (r === '/admin/settings') html = pageAdminSettings();
+  else if (r === '/dashboard') html = pageDashboard();
+  else if (r === '/notes') html = pageNotes();
+  else if (r.startsWith('/notes/') && !r.endsWith('/present')) {
+    const id = r.replace('/notes/', '');
+    html = pageNoteDetail(id);
+  }
+  else if (r === '/unlock') html = pageUnlock();
+  else html = pageLanding();
+
+  app.innerHTML = html;
+  applyTheme();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Post-render hooks
+  if (r === '/') setTimeout(initParticles, 50);
+  bindForms();
+  bindEditor();
+  bindSearch();
+  bindFilters();
+  scrollNavColor();
+}
+
+/* ============================================================
+   EVENT DELEGATION
+   ============================================================ */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+
+  switch(action) {
+    case 'toggle-theme': toggleTheme(); break;
+    case 'logout':
+      S.user = null; localStorage.removeItem(KEYS.user); nav('/'); toast('Logged out successfully', 'success'); break;
+    case 'mobile-menu': {
+      const mn = document.getElementById('mobile-nav');
+      if (mn) mn.classList.toggle('hidden');
+      break;
+    }
+    case 'toggle-sidebar': {
+      const sb = document.getElementById('admin-sidebar');
+      if (sb) sb.classList.toggle('open');
+      break;
+    }
+    case 'go-unlock': nav('/unlock'); break;
+    case 'present': if (id) enterPresentation(id); break;
+    case 'generate-code': {
+      const seg = () => Math.random().toString(36).toUpperCase().slice(2,6);
+      const code = `SHAR-${seg()}-${seg()}`;
+      S.codes.unshift({ id: uid(), code, status:'unused', owner:null, created: new Date().toISOString().split('T')[0], activated:null, expires:null });
+      persist(); render(); toast(`Code generated: ${code}`, 'success');
+      break;
+    }
+    case 'disable-code': {
+      const c = S.codes.find(x => x.id === id);
+      if (c) { c.status = 'disabled'; persist(); render(); toast('Code disabled', 'info'); }
+      break;
+    }
+    case 'delete-code': {
+      S.codes = S.codes.filter(x => x.id !== id); persist(); render(); toast('Code deleted', 'success'); break;
+    }
+    case 'delete-note': {
+      S.notes = S.notes.filter(x => x.id !== id); persist(); render(); toast('Note deleted', 'success'); break;
+    }
+    case 'delete-cat': {
+      S.cats = S.cats.filter(x => x.id !== id); persist(); render(); toast('Category deleted', 'success'); break;
+    }
+    case 'delete-msg': {
+      S.msgs = S.msgs.filter(x => x.id !== id); persist(); render(); toast('Message deleted', 'success'); break;
+    }
+    case 'reset-data': {
+      Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+      S.notes=[]; S.cats=[]; S.codes=[]; S.users=[]; S.msgs=[];
+      seed(); render(); toast('All data has been reset', 'info'); break;
+    }
+  }
+
+  // Copy code button
+  if (btn.dataset.copy) {
+    const el = document.getElementById(btn.dataset.copy);
+    if (el) {
+      const text = el.textContent.replace(/^\s*\d+\s/gm, '');
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+        setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+      });
+    }
+  }
+});
+
+/* ============================================================
+   FORM BINDING
+   ============================================================ */
+function bindForms() {
+  // Login
+  const lf = document.getElementById('login-form');
+  if (lf) lf.onsubmit = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    const user = S.users.find(u => u.email === email && u.password === pass);
+    if (user) {
+      S.user = { id:user.id, name:user.name, email:user.email, role:user.role, hasAccess:user.hasAccess };
+      save(KEYS.user, S.user);
+      toast(`Welcome back, ${user.name}`, 'success');
+      nav(user.role === 'admin' ? '/admin' : '/dashboard');
+    } else {
+      toast('Invalid email or password', 'error');
+    }
+  };
+
+  // Register
+  const rf = document.getElementById('register-form');
+  if (rf) rf.onsubmit = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    if (S.users.find(u => u.email === email)) { toast('An account with this email already exists', 'error'); return; }
+    const user = { id: uid(), name, email, password: pass, role:'user', hasAccess: false, created: new Date().toISOString().split('T')[0] };
+    S.users.push(user);
+    S.user = { id:user.id, name:user.name, email:user.email, role:user.role, hasAccess:false };
+    persist(); save(KEYS.user, S.user);
+    toast('Account created successfully', 'success');
+    nav('/dashboard');
+  };
+
+  // Contact
+  const cf = document.getElementById('contact-form');
+  if (cf) cf.onsubmit = (e) => {
+    e.preventDefault();
+    S.msgs.unshift({
+      id: uid(),
+      name: document.getElementById('cf-name').value.trim(),
+      email: document.getElementById('cf-email').value.trim(),
+      message: document.getElementById('cf-msg').value.trim(),
+      created: new Date().toISOString().split('T')[0]
+    });
+    persist(); cf.reset(); toast('Message sent successfully', 'success');
+  };
+
+  // Note form
+  const nf = document.getElementById('note-form');
+  if (nf) nf.onsubmit = (e) => {
+    e.preventDefault();
+    const id = document.getElementById('nf-id').value;
+    const data = {
+      title: document.getElementById('nf-title').value.trim(),
+      desc: document.getElementById('nf-desc').value.trim(),
+      catId: document.getElementById('nf-cat').value,
+      cover: document.getElementById('nf-cover').value.trim(),
+      content: document.getElementById('nf-content').innerHTML,
+      visibility: document.getElementById('nf-vis').value,
+      updated: new Date().toISOString().split('T')[0]
+    };
+    if (id) {
+      const note = S.notes.find(n => n.id === id);
+      if (note) Object.assign(note, data);
+      toast('Note updated', 'success');
+    } else {
+      S.notes.unshift({ id: uid(), ...data, created: data.updated });
+      toast('Note created', 'success');
+    }
+    persist(); nav('/admin/notes');
+  };
+
+  // Unlock form
+  const uf = document.getElementById('unlock-form');
+  if (uf) uf.onsubmit = (e) => {
+    e.preventDefault();
+    const code = document.getElementById('unlock-code').value.trim().toUpperCase();
+    const ac = S.codes.find(c => c.code === code);
+    if (!ac) { toast('Invalid access code. Please check and try again.', 'error'); return; }
+    if (ac.status === 'disabled') { toast('This code has been disabled.', 'error'); return; }
+    if (ac.status === 'active') { toast('This code has already been used by another account.', 'error'); return; }
+    // Activate
+    ac.status = 'active';
+    ac.owner = S.user.email;
+    ac.activated = new Date().toISOString().split('T')[0];
+    // Update user
+    const dbUser = S.users.find(u => u.id === S.user.id);
+    if (dbUser) dbUser.hasAccess = true;
+    S.user.hasAccess = true;
+    persist(); save(KEYS.user, S.user);
+    toast('All premium lessons unlocked! Enjoy learning.', 'success');
+    nav('/dashboard');
+  };
+
+  // Category form
+  const catf = document.getElementById('cat-form');
+  if (catf) catf.onsubmit = (e) => {
+    e.preventDefault();
+    S.cats.push({
+      id: uid(),
+      name: document.getElementById('cat-name').value.trim(),
+      color: document.getElementById('cat-color').value,
+      icon: document.getElementById('cat-icon').value
+    });
+    persist(); render(); toast('Category added', 'success');
+  };
+
+  // Cover preview
+  const coverInput = document.getElementById('nf-cover');
+  if (coverInput) {
+    coverInput.oninput = () => {
+      const prev = document.getElementById('nf-cover-preview');
+      if (prev) { prev.src = coverInput.value; prev.style.display = coverInput.value ? 'block' : 'none'; }
+    };
+  }
+
+  // Admin note search
+  const ans = document.getElementById('admin-note-search');
+  if (ans) {
+    ans.oninput = () => { S.searchQ = ans.value; render(); ans.focus(); };
+  }
+}
+
+/* ============================================================
+   EDITOR BINDING
+   ============================================================ */
+function bindEditor() {
+  const toolbar = document.getElementById('editor-toolbar');
+  const editor = document.getElementById('nf-content');
+  if (!toolbar || !editor) return;
+
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertText', false, '  ');
+    }
+  });
+
+  toolbar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-cmd]');
+    if (!btn) return;
+    const cmd = btn.dataset.cmd;
+    editor.focus();
+
+    if (cmd === 'h1') { document.execCommand('formatBlock', false, '<h1>'); }
+    else if (cmd === 'h2') { document.execCommand('formatBlock', false, '<h2>'); }
+    else if (cmd === 'h3') { document.execCommand('formatBlock', false, '<h3>'); }
+    else if (cmd === 'code') {
+      const sel = window.getSelection();
+      const text = sel.toString() || '// Your code here';
+      document.execCommand('insertHTML', false, `<pre><code>${escHtml(text)}</code></pre><p><br></p>`);
+    }
+    else if (cmd === 'image') {
+      const url = prompt('Enter image URL:');
+      if (url) document.execCommand('insertHTML', false, `<img src="${escHtml(url)}" alt="image"><br>`);
+    }
+    else if (cmd === 'link') {
+      const url = prompt('Enter link URL:');
+      if (url) document.execCommand('createLink', false, url);
+    }
+    else if (cmd === 'table') {
+      const html = `<table><tr><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr><tr><td>Cell 1</td><td>Cell 2</td><td>Cell 3</td></tr><tr><td>Cell 4</td><td>Cell 5</td><td>Cell 6</td></tr></table><p><br></p>`;
+      document.execCommand('insertHTML', false, html);
+    }
+    else { document.execCommand(cmd, false, null); }
+  });
+}
+
+/* ============================================================
+   SEARCH & FILTERS
+   ============================================================ */
+function bindSearch() {
+  // User dashboard search
+  const us = document.getElementById('user-search');
+  if (us) {
+    us.oninput = () => {
+      const q = us.value.toLowerCase();
+      const grid = document.getElementById('user-notes-grid');
+      if (!grid) return;
+      const canViewLocked = S.user && S.user.hasAccess;
+      const notes = canViewLocked ? S.notes : S.notes.filter(n => n.visibility === 'public');
+      const filtered = q ? notes.filter(n => n.title.toLowerCase().includes(q) || n.desc.toLowerCase().includes(q) || getCat(n.catId).name.toLowerCase().includes(q)) : notes;
+      grid.innerHTML = filtered.map((n,i) => noteCard(n,i)).join('');
+    };
+  }
+
+  // Notes page search
+  const ns = document.getElementById('notes-search');
+  if (ns) {
+    ns.oninput = () => {
+      const q = ns.value.toLowerCase();
+      const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+      filterAndRenderNotes(q, activeFilter);
+    };
+  }
+}
+
+function bindFilters() {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.style.background = 'var(--bg2)'; b.style.color = 'var(--fg2)'; b.style.border = '1px solid var(--border)';
+        b.classList.remove('active');
+      });
+      btn.style.background = 'var(--accent)'; btn.style.color = '#fff'; btn.style.border = '1px solid var(--accent)';
+      btn.classList.add('active');
+      const q = document.getElementById('notes-search')?.value?.toLowerCase() || '';
+      filterAndRenderNotes(q, btn.dataset.filter);
+    };
+  });
+}
+
+function filterAndRenderNotes(query, catFilter) {
+  const grid = document.getElementById('notes-grid');
+  if (!grid) return;
+  const hasAccess = S.user && S.user.hasAccess;
+  let notes = hasAccess ? S.notes : S.notes.filter(n => n.visibility === 'public');
+  if (catFilter !== 'all') notes = notes.filter(n => n.catId === catFilter);
+  if (query) notes = notes.filter(n => n.title.toLowerCase().includes(query) || n.desc.toLowerCase().includes(query) || getCat(n.catId).name.toLowerCase().includes(query));
+  grid.innerHTML = notes.length ? notes.map((n,i) => noteCard(n,i)).join('') : '<div class="col-span-full text-center py-12" style="color:var(--muted)"><p class="font-medium">No lessons found</p></div>';
+}
+
+/* ============================================================
+   NAVBAR SCROLL EFFECT
+   ============================================================ */
+function scrollNavColor() {
+  if (getRoute() !== '/') return;
+  const nav = document.getElementById('main-nav');
+  if (!nav) return;
+  const update = () => {
+    if (window.scrollY > 80) {
+      nav.style.background = 'var(--card)';
+      nav.style.backdropFilter = 'blur(16px)';
+      nav.style.borderBottom = '1px solid var(--border)';
+      nav.querySelectorAll('a').forEach(a => a.style.color = 'var(--fg)');
+    } else {
+      nav.style.background = 'transparent';
+      nav.style.backdropFilter = 'none';
+      nav.style.borderBottom = 'none';
+    }
+  };
+  update();
+  window.onscroll = update;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+seed();
+applyTheme();
+render();
+</script>
+</body>
+</html>
