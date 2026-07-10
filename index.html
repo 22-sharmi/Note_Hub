@@ -1412,7 +1412,26 @@ function bindForms() {
       desc: document.getElementById('nf-desc').value.trim(),
       catId: document.getElementById('nf-cat').value,
       cover: document.getElementById('nf-cover').value.trim(),
-      content: document.getElementById('nf-content').innerHTML,
+    const editor = document.getElementById('nf-content');
+
+const cleanContent = editor.innerHTML.replace(
+    /<pre[^>]*>([\s\S]*?)<\/pre>/gi,
+    (match) => {
+        const temp = document.createElement("div");
+        temp.innerHTML = match;
+
+        const pre = temp.querySelector("pre");
+
+        // Remove all syntax highlight spans
+        pre.querySelectorAll("span").forEach(span => {
+            span.replaceWith(document.createTextNode(span.textContent));
+        });
+
+        return pre.outerHTML;
+    }
+);
+
+content: cleanContent,
       visibility: document.getElementById('nf-vis').value,
       updated: new Date().toISOString().split('T')[0]
     };
