@@ -318,29 +318,22 @@ function toast(msg, type='info') {
 }
 
 function highlightCode(code) {
-  // Strip any existing highlight spans to prevent double-processing corruption
-  let h = code.replace(/<\/?span[^>]*>/g, '');
-  const placeholders = [];
-  function hold(html) {
-    const id = `\x00${placeholders.length}\x00`;
-    placeholders.push(html);
-    return id;
-  }
-  h = h.replace(/(["'])(?:(?!\1|\\).|\\.)*\1/g, m => hold('<span class="hl-str">' + escHtml(m) + '</span>'));
-  h = h.replace(/(\/\/.*$)/gm, m => hold('<span class="hl-cm">' + escHtml(m) + '</span>'));
-  h = h.replace(/(#(?!\s*(?:include|define|pragma|ifdef|ifndef|endif|if|else|elif|undef))\S*)/gm, m => hold('<span class="hl-cm">' + escHtml(m) + '</span>'));
-  h = escHtml(h);
-  const kws = ['void','int','float','double','char','bool','String','const','if','else','for','while','do','return','#include','#define','class','def','import','from','print','True','False','None','self','async','await','try','except','finally','with','as','in','not','and','or','is','lambda','yield','pass','break','continue','raise','new','let','var','function','struct','unsigned','long','byte','HIGH','LOW','OUTPUT','INPUT','setup','loop','delay','digitalWrite','digitalRead','analogRead','analogWrite','pinMode','Serial','begin','println','print','WiFi','status','WL_CONNECTED','localIP','type','len'];
-  kws.forEach(k => { h = h.replace(new RegExp('\\b(' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b', 'g'), '<span class="hl-kw">$1</span>'); });
+  let h = escHtml(code);
+  // Comments
+  h = h.replace(/(\/\/.*$|#.*$)/gm, '<span class="hl-cm">$1</span>');
+  // Strings
+  h = h.replace(/(&quot;.*?&quot;|&#039;.*?&#039;|".*?"|'.*?')/g, '<span class="hl-str">$1</span>');
+  // Numbers
   h = h.replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-num">$1</span>');
-  placeholders.forEach((p, i) => { h = h.replace(`\x00${i}\x00`, p); });
+  // Keywords
+  const kws = ['void','int','float','double','char','bool','String','const','if','else','for','while','do','return','include','define','class','def','import','from','print','True','False','None','self','async','await','try','except','finally','with','as','in','not','and','or','is','lambda','yield','pass','break','continue','raise','new','let','var','function','struct','unsigned','long','byte','HIGH','LOW','OUTPUT','INPUT','setup','loop','delay','digitalWrite','digitalRead','analogRead','analogWrite','pinMode','Serial','begin','println','print','WiFi','begin','status','WL_CONNECTED','localIP','type','len'];
+  kws.forEach(k => { h = h.replace(new RegExp('\\b(' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b', 'g'), '<span class="hl-kw">$1</span>'); });
   return h;
 }
+
 function renderCodeBlocks(html) {
   return html.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (m, code) => {
-    // Strip old corrupt highlight spans before decoding
-    let clean = code.replace(/<\/?span[^>]*>/g, '');
-    const decoded = clean.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#039;/g,"'");
+    const decoded = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#039;/g,"'");
     const lines = decoded.split('\n');
     const numbered = lines.map((l,i) => `<span class="line-num">${i+1}</span>${highlightCode(l)}`).join('\n');
     const cid = uid();
@@ -1412,26 +1405,7 @@ function bindForms() {
       desc: document.getElementById('nf-desc').value.trim(),
       catId: document.getElementById('nf-cat').value,
       cover: document.getElementById('nf-cover').value.trim(),
-    const editor = document.getElementById('nf-content');
-
-const cleanContent = editor.innerHTML.replace(
-    /<pre[^>]*>([\s\S]*?)<\/pre>/gi,
-    (match) => {
-        const temp = document.createElement("div");
-        temp.innerHTML = match;
-
-        const pre = temp.querySelector("pre");
-
-        // Remove all syntax highlight spans
-        pre.querySelectorAll("span").forEach(span => {
-            span.replaceWith(document.createTextNode(span.textContent));
-        });
-
-        return pre.outerHTML;
-    }
-);
-
-content: cleanContent,
+      content: document.getElementById('nf-content').innerHTML,
       visibility: document.getElementById('nf-vis').value,
       updated: new Date().toISOString().split('T')[0]
     };
